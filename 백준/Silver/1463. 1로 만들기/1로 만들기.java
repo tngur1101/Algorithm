@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * x에 사용할 수 있는 연산
@@ -17,29 +19,51 @@ import java.util.Arrays;
 
 public class Main {
 	
+	static long[] dp;
+	
 	public static void main(String[] args) throws Exception{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		
 		int N = Integer.parseInt(br.readLine());
 		
-		long dp[] = new long[N+1];
+		dp = new long[N+1];
 		
-		for(int i=2;i<=N;i++) {
-			dp[i] = dp[i-1]+1;
-			
-			if(i%3==0) {
-				dp[i] = Math.min(dp[i/3]+1, dp[i]);
+		start(N);
+		
+		
+	}
+	
+	private static void start(int N) {
+		Queue<Integer> queue = new LinkedList<Integer>();
+		
+		queue.add(N);
+		int cnt=0;
+		
+		while(!queue.isEmpty()) {
+			int size = queue.size();
+			while(size-->0) {
+				int cur =queue.poll();
+				if(cur==1) {
+					System.out.println(cnt);
+					return;
+				}
+				
+				if(cur%3==0 && dp[cur%3]==0) {
+					dp[cur/3]=cnt+1;
+					queue.offer(cur/3);
+				}
+				if(cur%2==0 && dp[cur%2]==0) {
+					dp[cur/2]=cnt+1;
+					queue.offer(cur/2);
+				}
+				if(dp[cur-1]==0) {
+					dp[cur-1]=cnt+1;
+					queue.offer(cur-1);
+				}
 			}
-			if(i%2==0) {
-				dp[i] = Math.min(dp[i/2]+1, dp[i]);
-			}
-			
-//			System.out.println(Arrays.toString(dp));
+			cnt+=1;
 		}
-		
-		System.out.println(dp[N]);
-		
-		
+
 	}
 
 }
