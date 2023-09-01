@@ -1,80 +1,102 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 /**
- * 모든 정점에는 1~V까지 번호가 매겨져 있음
- * 
- * 입력
- * 첫째 줄 : 정점의 개수 V와 간선의 개수 E
- * 둘째 줄 : 시작 정점의 번호 K
- * 셋째 줄~E+2줄 : 각 간선을 나타는 세 개의 정수 u,v,w
- * =>u에서 v로 가는 가중치 w인 간선
- * u와 v는 서로 다르고 w는 10이하의 자연수
- * 
- * 주의
- * 서로 다른 두 정점 사이에 여러 개의 간선이 존재 할 수 있다.
- * 
- * 범위
- * 1<=V<=20,000
- * 1<=E<=300,000
- * 1<=K<=V
+ * 필요한 것
+ * 길이 배열
+ * min heap을 이용한 priority queue
+ * 인접 리스트
  * 
  * @author SSAFY
  *
  */
 
-class Node implements Comparable<Node>{
-	int idx;
-	int cost;
-	public Node(int idx, int cost) {
-		this.idx = idx;
-		this.cost = cost;
-	}
-	
-	public int compareTo(Node o) {
-		return Integer.compare(this.cost, o.cost);
-	};
-}
-
 public class Main {
 	
-	static ArrayList<Node>[] graph;
+	static final int INF = Integer.MAX_VALUE;
+	
+	static class Edge implements Comparable<Edge>{
+		int idx;
+		int weight;
+		public Edge(int idx, int weight) {
+			this.idx = idx;
+			this.weight = weight;
+		}
+		public int compareTo(Edge o) {
+			return this.weight - o.weight;
+		};
+	}
+	
+	static int V, E;
+	static int[] dist;
+	static List<Edge>[] edge;
 	static boolean[] visited;
-	static int start;
-	static int V;
-	static int E;
-	static int INF = Integer.MAX_VALUE;
-	static StringBuilder sb = new StringBuilder();
-	public static void Dijkstra(int start) {
-		visited = new boolean[V+1];
-		int[] dist = new int[V+1];
-		Arrays.fill(dist, INF);
+	static StringBuilder sb;
+	
+	public static void main(String[] args) throws Exception{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		sb = new StringBuilder();
 		
-		//시작지점 거리 0으로 설정
-		dist[start]=0;
-		//우선순위큐 초기화
-		PriorityQueue<Node> pq = new PriorityQueue<Node>();
-		pq.offer(new Node(start,0));
+		st = new StringTokenizer(br.readLine());
+		V = Integer.parseInt(st.nextToken());
+		E = Integer.parseInt(st.nextToken());
 		
+		int s = Integer.parseInt(br.readLine());
+		
+		edge = new List[V+1];
+		dist = new int[V+1];
+		visited =new boolean[V+1];
+		
+		for(int i=1;i<=V;i++) {
+			edge[i] = new ArrayList<>();
+		}
+		
+		for(int i=0;i<E;i++) {
+			st = new StringTokenizer(br.readLine());
+			int u = Integer.parseInt(st.nextToken());
+			int v = Integer.parseInt(st.nextToken());
+			int w = Integer.parseInt(st.nextToken());
+			
+			//간선의 방향이 없기 떄문에 양방향으로 더해줌
+			edge[u].add(new Edge(v,w));
+		}
+		
+		//거리 배열 초기화
+		for(int i=1;i<=V;i++) {
+			dist[i] = INF;
+		}
+		
+		Dijkstra(s);
+		System.out.println(sb);
+		
+	}
+	
+	private static void Dijkstra(int s) {	// s: 시작 노드
+		PriorityQueue<Edge> pq = new PriorityQueue<>();
+		
+		//시작 거리 0
+		dist[s] = 0;
+		
+		pq.offer(new Edge(s,0));
 		while(!pq.isEmpty()) {
-			Node currentNode = pq.poll();
-			int currentIdx = currentNode.idx;
-			int currentCost = currentNode.cost;
+			Edge current = pq.poll();
+			int currentIdx = current.idx;
+			int currentWeight = current.weight;
 			
-			if(visited[currentIdx]) continue;
-			
-			visited[currentIdx] = true;
-			
-			for(Node next: graph[currentIdx]) {
-				if(dist[next.idx]>dist[currentIdx]+next.cost) {
-					dist[next.idx] = dist[currentIdx]+next.cost;
-					pq.offer(new Node(next.idx, dist[next.idx]));
-				}
+			if(!visited[current.idx]) {
+				visited[current.idx] = true;
+				
+				for(int i=0;i<edge[current.idx].size();i++) {
+					if(dist[currentIdx]+edge[current.idx].get(i).weight<dist[edge[current.idx].get(i).idx]) {
+						dist[edge[current.idx].get(i).idx] =dist[currentIdx]+edge[current.idx].get(i).weight;
+						pq.offer(new Edge(edge[current.idx].get(i).idx, dist[edge[current.idx].get(i).idx]));
+					}
+				}	
 			}
 		}
 		
@@ -86,30 +108,7 @@ public class Main {
 				sb.append(dist[i]).append(System.lineSeparator());
 			}
 		}
-		
-		System.out.println(sb);
-	}
-	
-	public static void main(String[] args) throws IOException {
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		
-		st = new StringTokenizer(br.readLine());
-		V = Integer.parseInt(st.nextToken());
-		E = Integer.parseInt(st.nextToken());
-		graph = new ArrayList[V+1];
-		for (int i = 0; i <= V; i++)  graph[i] = new ArrayList<>();
-		start = Integer.parseInt(br.readLine());
-		for(int i=0;i<E;i++) {
-			st = new StringTokenizer(br.readLine());
-			int u = Integer.parseInt(st.nextToken());
-			int v = Integer.parseInt(st.nextToken());
-			int w = Integer.parseInt(st.nextToken());
-			
-			graph[u].add(new Node(v,w));
-		}
-		Dijkstra(start);
+
 	}
 
 }
