@@ -52,8 +52,10 @@ public class Main {
 
         for(int i = 0; i < N; i++) {
             pq.add(arr[i].start);
-            while(!pq.isEmpty() && pq.peek() < arr[i].end - D)
+            while(!pq.isEmpty()) {
+                if(pq.peek() >= arr[i].end - D) break;
                 pq.poll();
+            }
             answer = Math.max(answer, pq.size());
         }
 
