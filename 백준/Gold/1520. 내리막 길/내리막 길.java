@@ -14,7 +14,7 @@ public class Main {
 	static int M,N;
 	static int[][] map;
 	static int[][] wayCnt;	// 해당 위치까지 갈 수 있는 경로의 개수를 저장하는 배열
-	static boolean[][] visited;
+//	static boolean[][] visited;
 	
 	static int[] dx = {-1, 0, 1, 0};
 	static int[] dy = {0, -1, 0, 1};
@@ -29,7 +29,7 @@ public class Main {
 		
 		map = new int[M+1][N+1];
 		wayCnt = new int[M+1][N+1];
-		visited = new boolean[M+1][N+1];
+//		visited = new boolean[M+1][N+1];
 		
 		for(int i = 1; i <= M; i++) {
 			st = new StringTokenizer(br.readLine());
@@ -40,66 +40,44 @@ public class Main {
 		}
 		
 		// 왼쪽 위 시작점에서 시작하므로
-		visited[1][1] = true;
-		answer = dfs(1,1);
+//		visited[1][1] = true;
+//		answer = dfs(1,1);
+		dfs(1,1);
 		
 //		printWayCnt();
-//		answer = wayCnt[1][1];
+		answer = wayCnt[1][1];
 		
 		System.out.println(answer);
 	}
 	
 	
 	// r과 c는 시작지점
-	private static int dfs(int r, int c) {
+	private static void dfs(int r, int c) {
+		// 만약 종점이면 wayCnt[r][c] = 1을 하고 리턴
 		if(r == M && c == N) {
-//			return wayCnt[r][c] = 1;
-			return 1;
+			wayCnt[r][c] = 1;
+			return;
 		}
 		
+		// 만약 계산한 값이 있다면 그냥 그 값 사용하면 되니까 리턴
 		if(wayCnt[r][c] != -1) {
-			return wayCnt[r][c];
+			return;
 		}
 		
-		int pathCnt = 0;
+		wayCnt[r][c] = 0;
+		
 		for(int d = 0; d < 4; d++) {
+			// 다음 위치 계산
 			int nr = r + dx[d];
 			int nc = c + dy[d];
 			
-			if(!isInRange(nr, nc) || visited[nr][nc] || map[nr][nc] >= map[r][c]) continue;
-			
-			visited[nr][nc] = true;
-			pathCnt += dfs(nr, nc);
-			visited[nr][nc] = false;
+			if(isInRange(nr, nc) && map[nr][nc] < map[r][c]) {
+				dfs(nr, nc);
+				wayCnt[r][c] += wayCnt[nr][nc];
+			}
 		}
-		return wayCnt[r][c] = pathCnt;
 		
 	}
-	
-//	private static void dfs(int r, int c) {
-//		// 만약 종점이면 wayCnt[r][c] = 1을 하고 리턴
-//		if(r == M && c == N) {
-//			wayCnt[r][c] = 1;
-//			return;
-//		}
-//		
-//		// 만약 계산한 값이 있다면 그냥 그 값 사용하면 되니까 리턴
-//		if(wayCnt[r][c] > 0) {
-//			return;
-//		}
-//		
-//		for(int d = 0; d < 4; d++) {
-//			// 다음 위치 계산
-//			int nr = r + dx[d];
-//			int nc = c + dy[d];
-//			
-//			if(isInRange(nr, nc) && map[nr][nc] < map[r][c]) {
-//				dfs(nr, nc);
-//				wayCnt[r][c] += wayCnt[nr][nc];
-//			}
-//		}
-//		
-//	}
 	
 //	private static int dfs(int r, int c) {
 //		if(r == M && c == N) return 1;
