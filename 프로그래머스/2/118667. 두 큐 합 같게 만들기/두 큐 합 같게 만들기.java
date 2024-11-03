@@ -33,12 +33,12 @@ class Solution {
             rq.offer(queue2[i]);
         }
         
-        if ((lSum + rSum) % 2 != 0) {
-            return -1;
-        }
+        // if ((lSum + rSum) % 2 != 0) {
+        //     return -1;
+        // }
         
         while(lSum != rSum){
-            if(cnt >= queue1.length * 4){
+            if(cnt >= queue1.length * 2 + 2){
                 return -1;
             }
             
